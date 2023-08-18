@@ -48,3 +48,6 @@ jobs:
             deployments:
               fastly-content-fanout:
                   type: fastly-compute
+          contentDirectories: |
+            fastly-content-fanout:
+              - pkg/fastly-compute-fanout.tar.gz
