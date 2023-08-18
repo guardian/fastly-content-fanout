@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Fastly CLI
+        uses: fastly/compute-actions/setup@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-region: eu-west-1
+          role-to-assume: ${{ secrets.GU_RIFF_RAFF_ROLE_ARN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Compute@Edge package
+        uses: fastly/compute-actions/build@v5 # equivalent to `fastly compute build`
+        with:
+          verbose: true # optionally enables verbose output, defaults to false
+
+      - name: Upload to riff-raff
+        uses: guardian/actions-riff-raff@v2
+        with:
+          app: fastly-content-fanout
+          config: |
+            stacks:
+              - mobile
+            regions:
+              - eu-west-1
+            deployments:
+              fastly-content-fanout:
+                  type: fastly-compute
