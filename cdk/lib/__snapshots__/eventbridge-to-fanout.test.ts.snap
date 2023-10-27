@@ -1,0 +1,142 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [],
+    "gu:cdk:version": "TEST",
+  },
+  "Resources": {
+    "ApiDestinationRuleA4096DF5": {
+      "Properties": {
+        "EventBusName": {
+          "Ref": "EventBridgeBus558461B0",
+        },
+        "EventPattern": {
+          "region": [
+            {
+              "Ref": "AWS::Region",
+            },
+          ],
+        },
+        "Name": "playground-events-to-fastly-fanout-TEST",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DestinationApiDestinationA879FAE5",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+            "Input": "{"items":[{"channel":"test","formats":{"ws-message":{"content":"anyone there?"}}}]}",
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "DestinationEventsRole7DA63556",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "Connection07624BCD": {
+      "Properties": {
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "Fastly-Key",
+            "ApiKeyValue": "{{resolve:secretsmanager:FastlyFanoutApiKey:SecretString:::}}",
+          },
+        },
+        "AuthorizationType": "API_KEY",
+        "Description": "Fastly fanout authentication",
+        "Name": "fastly-fanout-connection-TEST",
+      },
+      "Type": "AWS::Events::Connection",
+    },
+    "DestinationApiDestinationA879FAE5": {
+      "Properties": {
+        "ConnectionArn": {
+          "Fn::GetAtt": [
+            "Connection07624BCD",
+            "Arn",
+          ],
+        },
+        "HttpMethod": "POST",
+        "InvocationEndpoint": "https://api.fastly.com/service/undefined/publish/",
+        "Name": "fastly-fanout-api-destination-TEST",
+      },
+      "Type": "AWS::Events::ApiDestination",
+    },
+    "DestinationEventsRole7DA63556": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "playground",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DestinationEventsRoleDefaultPolicy798A1E31": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "events:InvokeApiDestination",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DestinationApiDestinationA879FAE5",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DestinationEventsRoleDefaultPolicy798A1E31",
+        "Roles": [
+          {
+            "Ref": "DestinationEventsRole7DA63556",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EventBridgeBus558461B0": {
+      "Properties": {
+        "Name": "playground-eventbridge-bus-TEST",
+      },
+      "Type": "AWS::Events::EventBus",
+    },
+  },
+}
+`;
