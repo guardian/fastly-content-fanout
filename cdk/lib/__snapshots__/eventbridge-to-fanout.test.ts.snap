@@ -30,7 +30,12 @@ exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
               ],
             },
             "Id": "Target0",
-            "Input": "{"items":[{"channel":"test","formats":{"ws-message":{"content":"anyone there?"}}}]}",
+            "InputTransformer": {
+              "InputPathsMap": {
+                "detail-front-path": "$.detail.front-path",
+              },
+              "InputTemplate": "{"items":[{"channel":<detail-front-path>,"formats":{"ws-message":{"content":"anyone there?"}}}]}",
+            },
             "RoleArn": {
               "Fn::GetAtt": [
                 "DestinationEventsRole7DA63556",
