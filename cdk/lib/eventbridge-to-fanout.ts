@@ -44,7 +44,7 @@ export class EventbridgeToFanout extends GuStack {
 								channel: events.EventField.fromPath("$.detail.front-path"),
 								formats: {
 									'ws-message': {
-										content: 'anyone there?',
+										content: events.EventField.fromPath("$.time"),
 									},
 								},
 							},
