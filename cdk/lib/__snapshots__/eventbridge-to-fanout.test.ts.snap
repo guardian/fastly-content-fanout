@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
+exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
 {
   "Metadata": {
     "gu:cdk:constructs": [],
@@ -19,7 +19,7 @@ exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
             },
           ],
         },
-        "Name": "playground-events-to-fastly-fanout-TEST",
+        "Name": "stack-events-to-fastly-fanout-TEST",
         "State": "ENABLED",
         "Targets": [
           {
@@ -101,7 +101,7 @@ exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
           },
           {
             "Key": "Stack",
-            "Value": "playground",
+            "Value": "stack",
           },
           {
             "Key": "Stage",
@@ -139,7 +139,7 @@ exports[`The EventbridgeToFanout stack matches the snapshot 1`] = `
     },
     "EventBridgeBus558461B0": {
       "Properties": {
-        "Name": "playground-eventbridge-bus-TEST",
+        "Name": "stack-eventbridge-bus-TEST",
       },
       "Type": "AWS::Events::EventBus",
     },
