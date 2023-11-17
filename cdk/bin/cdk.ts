@@ -3,13 +3,17 @@ import { GuRoot } from '@guardian/cdk/lib/constructs/root';
 import { EventbridgeToFanout } from '../lib/eventbridge-to-fanout';
 
 const app = new GuRoot();
-new EventbridgeToFanout(app, 'EventbridgeToFanout-euwest-1-CODE', {
-	stack: 'playground',
+
+const stack = 'cms-fronts';
+const env = { region: 'eu-west-1' };
+
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-CODE', {
+	stack,
 	stage: 'CODE',
-	env: { region: 'eu-west-1' },
+	env,
 });
-new EventbridgeToFanout(app, 'EventbridgeToFanout-euwest-1-PROD', {
-	stack: 'playground',
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-PROD', {
+	stack,
 	stage: 'PROD',
-	env: { region: 'eu-west-1' },
+	env,
 });
