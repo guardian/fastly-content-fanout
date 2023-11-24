@@ -28,7 +28,7 @@ async function handleRequest(event: FetchEvent) {
     if (!channel || channel === "/")
       return new Response("No path provided.", { status: 400 });
 
-    if (originatingProtocol === "https") {
+    if (originatingProtocol === "https:") {
       // assume this is server sent event
       return new Response("welcome\n", {
         status: 200,
@@ -40,7 +40,7 @@ async function handleRequest(event: FetchEvent) {
       });
     }
 
-    if (originatingProtocol === "wss") {
+    if (originatingProtocol === "wss:") {
       const body = await req.text();
       if (body.startsWith("OPEN")) {
         const subscribePayload = { type: "subscribe", channel };
