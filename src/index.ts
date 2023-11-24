@@ -3,6 +3,8 @@
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
 
+const X_GU_PROTOCOL = "x-gu-protocol";
+
 // Use this fetch event listener to define your main request handling logic.
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
 
@@ -16,15 +18,16 @@ async function handleRequest(event: FetchEvent) {
   const req = event.request;
 
   const gripSig = req.headers.get("Grip-Sig");
+  const url = new URL(req.url);
   if (gripSig) {
     // headers dont exist so lets use query params
-    const url = new URL(req.url);
     const channel = url.pathname;
+    const originatingProtocol = req.headers.get(X_GU_PROTOCOL);
 
-    if (!channel)
-      return new Response("channel required in query params", { status: 400 });
+    if (!channel || channel === "/")
+      return new Response("No path provided.", { status: 400 });
 
-    if (url.protocol === "https") {
+    if (originatingProtocol === "https") {
       // assume this is server sent event
       return new Response("welcome\n", {
         status: 200,
@@ -36,7 +39,7 @@ async function handleRequest(event: FetchEvent) {
       });
     }
 
-    if (url.protocol === "wss") {
+    if (originatingProtocol === "wss") {
       const body = await req.text();
       if (body.startsWith("OPEN")) {
         const subscribePayload = { type: "subscribe", channel };
@@ -62,6 +65,7 @@ async function handleRequest(event: FetchEvent) {
     });
   } else {
     console.log("about to create fanout handoff");
+    req.headers.set(X_GU_PROTOCOL, url.protocol)
     return createFanoutHandoff(req, "self");
   }
 }
