@@ -19,15 +19,12 @@ async function handleRequest(event: FetchEvent) {
   if (gripSig) {
     // headers dont exist so lets use query params
     const url = new URL(req.url);
-    const contentType = url.searchParams.get("contentType");
-    const channel = url.searchParams.get("channel");
-    // const contentType = req.headers.get("Content-Type")
-    // const channel = req.headers.get("x-gu-path")
-    console.log({ contentType, channel });
+    const channel = url.pathname;
 
     if (!channel)
-      return new Response("x-gu-path header required", { status: 400 });
-    if (contentType != "application/websocket-events") {
+      return new Response("channel required in query params", { status: 400 });
+
+    if (url.protocol === "https") {
       // assume this is server sent event
       return new Response("welcome\n", {
         status: 200,
@@ -39,25 +36,30 @@ async function handleRequest(event: FetchEvent) {
       });
     }
 
-    const body = await req.text();
-    console.log("body: ", body);
-    if (body.startsWith("OPEN")) {
-      const bodyStr = `OPEN\r\nTEXT 27\r\nc:{\"type\":\"subscribe\",\"channel\":\"${channel}\"}`;
-      return new Response(toUint8Array(bodyStr), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/websocket-events",
-          "Sec-WebSocket-Extensions": 'grip; message-prefix=""',
-        },
-      });
-    } else {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          "Content-Type": "application/websocket-events",
-        },
-      });
+    if (url.protocol === "wss") {
+      const body = await req.text();
+      if (body.startsWith("OPEN")) {
+        const subscribePayload = { type: "subscribe", channel };
+        const bodyStr = `OPEN\r\nTEXT 27\r\nc:${JSON.stringify(subscribePayload)}`;
+        return new Response(toUint8Array(bodyStr), {
+          status: 200,
+          headers: {
+            "Content-Type": "application/websocket-events",
+            "Sec-WebSocket-Extensions": 'grip; message-prefix=""',
+          },
+        });
+      } else {
+        return new Response(null, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/websocket-events",
+          },
+        });
+      }
     }
+    return new Response("Invalid protocol (use https for server sent events or wss for websockets)", {
+      status: 400,
+    });
   } else {
     console.log("about to create fanout handoff");
     return createFanoutHandoff(req, "self");
