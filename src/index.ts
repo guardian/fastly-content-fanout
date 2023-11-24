@@ -19,6 +19,7 @@ async function handleRequest(event: FetchEvent) {
 
   const gripSig = req.headers.get("Grip-Sig");
   const url = new URL(req.url);
+  console.log(req.url, url, req.headers)
   if (gripSig) {
     // headers dont exist so lets use query params
     const channel = url.pathname;
