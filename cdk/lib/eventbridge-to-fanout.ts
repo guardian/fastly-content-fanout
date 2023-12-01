@@ -49,7 +49,7 @@ export class EventbridgeToFanout extends GuStack {
 									},
 									// sse connections
 									'http-stream': {
-										content: events.EventField.fromPath("$.time"),
+										content: `${events.EventField.fromPath("$.time")}\n`,
 									}
 								},
 							},
