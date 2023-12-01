@@ -43,9 +43,14 @@ export class EventbridgeToFanout extends GuStack {
 							{
 								channel: events.EventField.fromPath("$.detail.front-path"),
 								formats: {
+									// websocket connections
 									'ws-message': {
 										content: events.EventField.fromPath("$.time"),
 									},
+									// sse connections
+									'http-stream': {
+										content: events.EventField.fromPath("$.time"),
+									}
 								},
 							},
 						],
