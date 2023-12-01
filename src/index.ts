@@ -13,7 +13,7 @@ async function handleRequest({ request }: FetchEvent) {
     env("FASTLY_SERVICE_VERSION") || "local"
   );
 
-  const channel = new URL(request.url).pathname;
+  const channel = new URL(request.url).pathname?.substring(1); // drop preceding "/"
 
   if (!channel || channel === "/")
     return new Response("No path provided.", { status: 400 });
