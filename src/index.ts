@@ -27,7 +27,8 @@ async function handleRequest({ request }: FetchEvent) {
     const body = await request.text();
     if (body.startsWith("OPEN")) {
       const subscribePayload = { type: "subscribe", channel };
-      const bodyStr = `OPEN\r\nTEXT 27\r\nc:${JSON.stringify(subscribePayload)}`;
+      const wsMessage = JSON.stringify(subscribePayload)
+      const bodyStr = `OPEN\r\nTEXT ${wsMessage.length.toString(16)}\r\nc:${wsMessage}`;
       return new Response(toUint8Array(bodyStr), {
         status: 200,
         headers: {
