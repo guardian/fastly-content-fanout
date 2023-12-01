@@ -19,16 +19,16 @@ async function handleRequest(event: FetchEvent) {
 
   const gripSig = req.headers.get("Grip-Sig");
   const url = new URL(req.url);
-  console.log(req.url, url, req.headers)
+  console.log(req.url, url, Array.from(req.headers.entries()))
   if (gripSig) {
     // headers dont exist so lets use query params
     const channel = url.pathname;
-    const originatingProtocol = req.headers.get(X_GU_PROTOCOL);
+    const contentType = req.headers.get("Accept") //?
 
     if (!channel || channel === "/")
       return new Response("No path provided.", { status: 400 });
 
-    if (originatingProtocol === "https:") {
+    if (contentType === "https:") {
       // assume this is server sent event
       return new Response("welcome\n", {
         status: 200,
@@ -40,7 +40,7 @@ async function handleRequest(event: FetchEvent) {
       });
     }
 
-    if (originatingProtocol === "wss:") {
+    if (contentType === "wss:") {
       const body = await req.text();
       if (body.startsWith("OPEN")) {
         const subscribePayload = { type: "subscribe", channel };
