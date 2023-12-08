@@ -1,7 +1,20 @@
 /// <reference types="@fastly/js-compute" />
 
+// import { Router } from "@fastly/expressly";
+
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
+
+// const router = new Router();
+//
+// router.get("/", async (req, res) => {
+//   return res.send("Hello world!");
+// });
+//
+// // Websocket-over-HTTP is translated to HTTP POST
+// router.post()
+//
+// router.listen();
 
 // Use this fetch event listener to define your main request handling logic.
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
@@ -10,7 +23,9 @@ async function handleRequest({ request }: FetchEvent) {
   // Log service version
   console.log(
     "FASTLY_SERVICE_VERSION:",
-    env("FASTLY_SERVICE_VERSION") || "local"
+    env("FASTLY_SERVICE_VERSION") || "local",
+      request.method,
+      request.url
   );
 
   const channel = new URL(request.url).pathname?.substring(1); // drop preceding "/"
