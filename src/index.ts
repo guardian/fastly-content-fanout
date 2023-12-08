@@ -1,20 +1,9 @@
 /// <reference types="@fastly/js-compute" />
 
-// import { Router } from "@fastly/expressly";
+import { Buffer } from 'buffer';
 
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
-
-// const router = new Router();
-//
-// router.get("/", async (req, res) => {
-//   return res.send("Hello world!");
-// });
-//
-// // Websocket-over-HTTP is translated to HTTP POST
-// router.post()
-//
-// router.listen();
 
 // Use this fetch event listener to define your main request handling logic.
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
@@ -43,8 +32,18 @@ async function handleRequest({ request }: FetchEvent) {
     if (body.startsWith("OPEN")) {
       const subscribePayload = { type: "subscribe", channel };
       const wsMessage = JSON.stringify(subscribePayload)
-      const bodyStr = `OPEN\r\nTEXT ${wsMessage.length.toString(16)}\r\nc:${wsMessage}`;
-      return new Response(toUint8Array(bodyStr), {
+      const out = Buffer.concat([
+        Buffer.from("OPEN"),
+        Buffer.from("\r\n"),
+        Buffer.from("TEXT"),
+        Buffer.from(" "),
+        Buffer.from(wsMessage.length.toString(16)),
+        Buffer.from("\r\n"),
+        Buffer.from("c:"),
+        Buffer.from(wsMessage),
+        Buffer.from("\r\n"),
+      ]);
+      return new Response(new Uint8Array(out), {
         status: 200,
         headers: {
           "Content-Type": "application/websocket-events",
@@ -70,9 +69,4 @@ async function handleRequest({ request }: FetchEvent) {
       "Grip-Channel": channel,
     },
   });
-}
-
-function toUint8Array(str: string) {
-  const encoder = new TextEncoder();
-  return encoder.encode(str);
 }
