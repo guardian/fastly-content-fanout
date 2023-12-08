@@ -1,5 +1,7 @@
 /// <reference types="@fastly/js-compute" />
 
+import { Buffer } from 'buffer';
+
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
 
@@ -28,8 +30,18 @@ async function handleRequest({ request }: FetchEvent) {
     if (body.startsWith("OPEN")) {
       const subscribePayload = { type: "subscribe", channel };
       const wsMessage = JSON.stringify(subscribePayload)
-      const bodyStr = `OPEN\r\nTEXT ${wsMessage.length.toString(16)}\r\nc:${wsMessage}`;
-      return new Response(toUint8Array(bodyStr), {
+      const out = Buffer.concat([
+        Buffer.from("OPEN"),
+        Buffer.from("\r\n"),
+        Buffer.from("TEXT"),
+        Buffer.from(" "),
+        Buffer.from(wsMessage.length.toString(16)),
+        Buffer.from("\r\n"),
+        Buffer.from("c:"),
+        Buffer.from(wsMessage),
+        Buffer.from("\r\n"),
+      ]);
+      return new Response(new Uint8Array(out), {
         status: 200,
         headers: {
           "Content-Type": "application/websocket-events",
@@ -55,9 +67,4 @@ async function handleRequest({ request }: FetchEvent) {
       "Grip-Channel": channel,
     },
   });
-}
-
-function toUint8Array(str: string) {
-  const encoder = new TextEncoder();
-  return encoder.encode(str);
 }
