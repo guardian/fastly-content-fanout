@@ -41,8 +41,8 @@ async function handleRequest({ request }: FetchEvent) {
         Buffer.from("\r\n"),
         Buffer.from("c:"),
         Buffer.from(wsMessage),
-        Buffer.from("\r\n"),
       ]);
+      console.log("out", out.toString(), out);
       return new Response(new Uint8Array(out), {
         status: 200,
         headers: {
@@ -51,6 +51,7 @@ async function handleRequest({ request }: FetchEvent) {
         },
       });
     } else {
+      console.log("sending null websocket-event");
       return new Response(null, {
         status: 200,
         headers: {
@@ -59,6 +60,8 @@ async function handleRequest({ request }: FetchEvent) {
       });
     }
   }
+
+  console.log("assuming event-stream");
 
   // assume this is server sent event
   return new Response("welcome\n", { // TODO: can we send null for body?
