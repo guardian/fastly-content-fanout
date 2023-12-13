@@ -12,7 +12,9 @@ async function handleRequest({ request }: FetchEvent) {
   // Log service version
   console.log(
     "FASTLY_SERVICE_VERSION:",
-    env("FASTLY_SERVICE_VERSION") || "local"
+    env("FASTLY_SERVICE_VERSION") || "local",
+      request.method,
+      request.url
   );
 
   const channel = new URL(request.url).pathname?.substring(1); // drop preceding "/"
@@ -30,16 +32,16 @@ async function handleRequest({ request }: FetchEvent) {
     if (body.startsWith("OPEN")) {
       const subscribePayload = { type: "subscribe", channel };
       const wsMessage = JSON.stringify(subscribePayload)
+      const content = `c:${wsMessage}`
       const out = Buffer.concat([
         Buffer.from("OPEN"),
         Buffer.from("\r\n"),
         Buffer.from("TEXT"),
         Buffer.from(" "),
-        Buffer.from(wsMessage.length.toString(16)),
+        Buffer.from(content.length.toString(16)),
         Buffer.from("\r\n"),
-        Buffer.from("c:"),
-        Buffer.from(wsMessage),
-        Buffer.from("\r\n"),
+        Buffer.from(content),
+        Buffer.from("\r\n")
       ]);
       return new Response(new Uint8Array(out), {
         status: 200,
