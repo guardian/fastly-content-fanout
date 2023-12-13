@@ -32,15 +32,16 @@ async function handleRequest({ request }: FetchEvent) {
     if (body.startsWith("OPEN")) {
       const subscribePayload = { type: "subscribe", channel };
       const wsMessage = JSON.stringify(subscribePayload)
+      const content = `c:${wsMessage}`
       const out = Buffer.concat([
         Buffer.from("OPEN"),
         Buffer.from("\r\n"),
         Buffer.from("TEXT"),
         Buffer.from(" "),
-        Buffer.from(wsMessage.length.toString(16)),
+        Buffer.from(content.length.toString(16)),
         Buffer.from("\r\n"),
-        Buffer.from("c:"),
-        Buffer.from(wsMessage),
+        Buffer.from(content),
+        Buffer.from("\r\n")
       ]);
       console.log("out", out.toString(), out);
       return new Response(new Uint8Array(out), {
