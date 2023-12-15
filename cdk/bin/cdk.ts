@@ -9,21 +9,28 @@ const app = new GuRoot();
 const env = { region: 'eu-west-1' };
 
 // fronts
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-CODE', {
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-CODE', {
 	stack: FRONTS_STACK,
 	stage: 'CODE',
 	env,
 });
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-PROD', {
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-PROD', {
 	stack: FRONTS_STACK,
 	stage: 'PROD',
 	env,
 });
 
 // capi
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-CODE', {
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-CODE', {
 	stack: CAPI_STACK,
 	stage: 'CODE',
 	env,
 	withKinesisStreamArnAsPipeSource: 'foo',
+});
+
+new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-PROD', {
+	stack: CAPI_STACK,
+	stage: 'PROD',
+	env,
+	withKinesisStreamArnAsPipeSource: 'bar',
 });
