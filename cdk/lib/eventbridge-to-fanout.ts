@@ -4,9 +4,15 @@ import type { App } from 'aws-cdk-lib';
 import { SecretValue } from 'aws-cdk-lib';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as pipes from 'aws-cdk-lib/aws-pipes';
+
+interface EventbridgeToFanoutStackProps extends GuStackProps {
+	withKinesisStreamArnAsPipeSource?: string;
+}
 
 export class EventbridgeToFanout extends GuStack {
-	constructor(scope: App, id: string, props: GuStackProps) {
+	constructor(scope: App, id: string, props: EventbridgeToFanoutStackProps) {
 		super(scope, id, props);
 
 		const eventBridgeBus = new events.EventBus(this, 'EventBridgeBus', {
@@ -41,16 +47,16 @@ export class EventbridgeToFanout extends GuStack {
 					event: events.RuleTargetInput.fromObject({
 						items: [
 							{
-								channel: events.EventField.fromPath("$.detail.path"),
+								channel: events.EventField.fromPath('$.detail.path'),
 								formats: {
 									// websocket connections
 									'ws-message': {
-										content: events.EventField.fromPath("$.time"),
+										content: events.EventField.fromPath('$.time'),
 									},
 									// sse connections
 									'http-stream': {
-										content: `${events.EventField.fromPath("$.time")}\n`,
-									}
+										content: `${events.EventField.fromPath('$.time')}\n`,
+									},
 								},
 							},
 						],
@@ -61,5 +67,29 @@ export class EventbridgeToFanout extends GuStack {
 				region: [this.region],
 			},
 		});
+
+		if (props.withKinesisStreamArnAsPipeSource) {
+			const role = new iam.Role(this, 'PipeFromKinesisToEventBridgeRole', {
+				inlinePolicies: {
+					allowPutEventsFromPipe: new iam.PolicyDocument({
+						statements: [
+							new iam.PolicyStatement({
+								effect: iam.Effect.ALLOW,
+								actions: ['events:PutEvents'],
+								resources: [eventBridgeBus.eventBusArn],
+							}),
+						],
+					}),
+				},
+				assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
+			});
+
+			new pipes.CfnPipe(this, 'PipeFromKinesisToEventBridge', {
+				// only 3 required props, all the rest are optional:
+				roleArn: role.roleArn,
+				source: props.withKinesisStreamArnAsPipeSource, // arn of the resource
+				target: eventBridgeBus.eventBusArn, // arn of the target
+			});
+		}
 	}
 }
