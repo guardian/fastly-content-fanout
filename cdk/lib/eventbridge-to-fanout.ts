@@ -41,7 +41,7 @@ export class EventbridgeToFanout extends GuStack {
 					event: events.RuleTargetInput.fromObject({
 						items: [
 							{
-								channel: events.EventField.fromPath("$.detail.front-path"),
+								channel: events.EventField.fromPath("$.detail.path"),
 								formats: {
 									// websocket connections
 									'ws-message': {
