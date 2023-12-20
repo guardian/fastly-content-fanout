@@ -1,5 +1,5 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import { GuStack } from '@guardian/cdk/lib/constructs/core';
+import {GuParameter, GuStack} from '@guardian/cdk/lib/constructs/core';
 import type { App } from 'aws-cdk-lib';
 import { SecretValue } from 'aws-cdk-lib';
 import * as events from 'aws-cdk-lib/aws-events';
@@ -8,7 +8,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as pipes from 'aws-cdk-lib/aws-pipes';
 
 interface EventbridgeToFanoutStackProps extends GuStackProps {
-	withKinesisStreamArnAsPipeSource?: string;
+	maybeParamStorePathForKinesisStreamName?: string;
 }
 
 export class EventbridgeToFanout extends GuStack {
@@ -68,7 +68,7 @@ export class EventbridgeToFanout extends GuStack {
 			},
 		});
 
-		if (props.withKinesisStreamArnAsPipeSource) {
+		if (props.maybeParamStorePathForKinesisStreamName) {
 			const role = new iam.Role(this, 'PipeFromKinesisToEventBridgeRole', {
 				inlinePolicies: {
 					allowPutEventsFromPipe: new iam.PolicyDocument({
@@ -84,11 +84,18 @@ export class EventbridgeToFanout extends GuStack {
 				assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
 			});
 
+			const kinesisStreamName = new GuParameter(this, 'kinesisStreamName', {
+				fromSSM: true,
+				default: props.maybeParamStorePathForKinesisStreamName,
+			}).valueAsString
+
+			const kinesisStreamArn = `arn:aws:kinesis:${this.region}:${this.account}:stream/${kinesisStreamName}`;
+
 			new pipes.CfnPipe(this, 'PipeFromKinesisToEventBridge', {
-				// only 3 required props, all the rest are optional:
+				// only 3 required props, all the rest are optional
 				roleArn: role.roleArn,
-				source: props.withKinesisStreamArnAsPipeSource, // arn of the resource
-				target: eventBridgeBus.eventBusArn, // arn of the target
+				source: kinesisStreamArn,
+				target: eventBridgeBus.eventBusArn,
 			});
 		}
 	}

@@ -8,7 +8,7 @@ describe('The EventBridgeToFanout stack', () => {
 		const stack = new EventbridgeToFanout(app, 'EventBridgeToFanout', {
 			stack: 'stack',
 			stage: 'TEST',
-			withKinesisStreamArnAsPipeSource: 'test-kinesis-arn',
+			maybeParamStorePathForKinesisStreamName: 'test-kinesis-name',
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
