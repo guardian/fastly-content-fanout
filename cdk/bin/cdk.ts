@@ -25,12 +25,12 @@ new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-CODE', {
 	stack: CAPI_STACK,
 	stage: 'CODE',
 	env,
-	// withKinesisStreamArnAsPipeSource: 'foo',
+	maybeParamStorePathForKinesisStreamName: '/CODE/content-api/crier/index-stream',
 });
 
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-PROD', {
 	stack: CAPI_STACK,
 	stage: 'PROD',
 	env,
-	withKinesisStreamArnAsPipeSource: 'bar',
+	maybeParamStorePathForKinesisStreamName: '/PROD/content-api/crier/index-stream',
 });

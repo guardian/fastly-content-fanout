@@ -3,8 +3,16 @@
 exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
 {
   "Metadata": {
-    "gu:cdk:constructs": [],
+    "gu:cdk:constructs": [
+      "GuParameter",
+    ],
     "gu:cdk:version": "TEST",
+  },
+  "Parameters": {
+    "kinesisStreamName": {
+      "Default": "test-kinesis-name",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
   },
   "Resources": {
     "ApiDestinationRuleA4096DF5": {
@@ -151,7 +159,25 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
             "Arn",
           ],
         },
-        "Source": "test-kinesis-arn",
+        "Source": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:aws:kinesis:",
+              {
+                "Ref": "AWS::Region",
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId",
+              },
+              ":stream/",
+              {
+                "Ref": "kinesisStreamName",
+              },
+            ],
+          ],
+        },
         "Tags": {
           "Stack": "stack",
           "Stage": "TEST",
