@@ -25,7 +25,7 @@ new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-CODE', {
 	stack: CAPI_STACK,
 	stage: 'CODE',
 	env,
-	withKinesisStreamArnAsPipeSource: 'foo',
+	// withKinesisStreamArnAsPipeSource: 'foo',
 });
 
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-PROD', {
