@@ -8,29 +8,29 @@ const app = new GuRoot();
 
 const env = { region: 'eu-west-1' };
 
-// fronts
+// Fronts - this listens to SNS topic via SQS and EventBridge Pipe (before it gets to the event bus)
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-CODE', {
 	stack: FRONTS_STACK,
 	stage: 'CODE',
 	env,
+	maybeSnsTopicCfnExportName: 'facia-CODE-FrontsUpdateSNSTopicARN',
 });
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-PROD', {
 	stack: FRONTS_STACK,
 	stage: 'PROD',
 	env,
+	maybeSnsTopicCfnExportName: 'facia-PROD-FrontsUpdateSNSTopicARN',
 });
 
-// capi
+// CAPI - crier writes straight to the event bus
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-CODE', {
 	stack: CAPI_STACK,
 	stage: 'CODE',
 	env,
-	maybeParamStorePathForKinesisStreamName: '/CODE/content-api/crier/index-stream',
 });
 
 new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-PROD', {
 	stack: CAPI_STACK,
 	stage: 'PROD',
 	env,
-	maybeParamStorePathForKinesisStreamName: '/PROD/content-api/crier/index-stream',
 });
