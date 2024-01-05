@@ -42,6 +42,7 @@ async function handleRequest({ request }: FetchEvent) {
         Buffer.from("\r\n"),
         Buffer.from(content),
         Buffer.from("\r\n")
+        // TODO add the keep-alive (see https://pushpin.org/docs/advanced/#keep-alives)
       ]);
       return new Response(new Uint8Array(out), {
         status: 200,
@@ -67,6 +68,7 @@ async function handleRequest({ request }: FetchEvent) {
       "Content-Type": "text/event-stream",
       "Grip-Hold": "stream",
       "Grip-Channel": channel,
+      // TODO add the keep-alive header (see https://pushpin.org/docs/advanced/#keep-alives)
     },
   });
 }
