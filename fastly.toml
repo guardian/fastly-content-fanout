@@ -1,0 +1,13 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = ["tom.richards@guardian.co.uk", "david.lawes@guardian.co.uk"]
+description = "Compute@Edge app to update clients about new content"
+language = "javascript"
+manifest_version = 3
+name = "fastly-compute-fanout"
+
+service_id = "SERVICE_ID"
+
+[scripts]
+  build = "npm run build"
