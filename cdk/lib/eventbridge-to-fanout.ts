@@ -1,14 +1,17 @@
 import type { GuStackProps } from '@guardian/cdk/lib/constructs/core';
-import {GuParameter, GuStack} from '@guardian/cdk/lib/constructs/core';
+import { GuStack } from '@guardian/cdk/lib/constructs/core';
 import type { App } from 'aws-cdk-lib';
-import { SecretValue } from 'aws-cdk-lib';
+import { Fn, SecretValue } from 'aws-cdk-lib';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as pipes from 'aws-cdk-lib/aws-pipes';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 
 interface EventbridgeToFanoutStackProps extends GuStackProps {
-	maybeParamStorePathForKinesisStreamName?: string;
+	maybeSnsTopicCfnExportName?: string;
 }
 
 export class EventbridgeToFanout extends GuStack {
@@ -68,34 +71,76 @@ export class EventbridgeToFanout extends GuStack {
 			},
 		});
 
-		if (props.maybeParamStorePathForKinesisStreamName) {
-			const role = new iam.Role(this, 'PipeFromKinesisToEventBridgeRole', {
-				inlinePolicies: {
-					allowPutEventsFromPipe: new iam.PolicyDocument({
-						statements: [
-							new iam.PolicyStatement({
-								effect: iam.Effect.ALLOW,
-								actions: ['events:PutEvents'],
-								resources: [eventBridgeBus.eventBusArn],
-							}),
-						],
-					}),
-				},
-				assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
+		if (props.maybeSnsTopicCfnExportName) {
+			const snsTopic = sns.Topic.fromTopicArn(
+				this,
+				'SNSTopic',
+				Fn.importValue(props.maybeSnsTopicCfnExportName),
+			);
+
+			const sqsQueue = new sqs.Queue(this, 'SqsQueue', {
+				// TODO adjust defaults??
 			});
 
-			const kinesisStreamName = new GuParameter(this, 'kinesisStreamName', {
-				fromSSM: true,
-				default: props.maybeParamStorePathForKinesisStreamName,
-			}).valueAsString
+			snsTopic.addSubscription(
+				new SqsSubscription(sqsQueue, {
+					rawMessageDelivery: true, // prevents message being wrapped in SNS envelope
+				}),
+			);
 
-			const kinesisStreamArn = `arn:aws:kinesis:${this.region}:${this.account}:stream/${kinesisStreamName}`;
+			const putEventsOnPipeRole = new iam.Role(
+				this,
+				'PipeFromKinesisToEventBridgeRole',
+				{
+					inlinePolicies: {
+						allowPutEventsFromPipe: new iam.PolicyDocument({
+							statements: [
+								new iam.PolicyStatement({
+									effect: iam.Effect.ALLOW,
+									actions: ['events:PutEvents'],
+									resources: [eventBridgeBus.eventBusArn],
+								}),
+								new iam.PolicyStatement({
+									effect: iam.Effect.ALLOW,
+									actions: [
+										'sqs:ReceiveMessage',
+										'sqs:DeleteMessage',
+										'sqs:GetQueueAttributes',
+									],
+									resources: [sqsQueue.queueArn],
+								}),
+							],
+						}),
+					},
+					assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
+				},
+			);
 
-			new pipes.CfnPipe(this, 'PipeFromKinesisToEventBridge', {
-				// only 3 required props, all the rest are optional
-				roleArn: role.roleArn,
-				source: kinesisStreamArn,
+			// NOTE: 'body' of the SQS message is implicitly parsed and contains the 'PressJob' JSON from the SNS message
+			// see https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes-input-transformation.html#input-transform-implicit
+			new pipes.CfnPipe(this, 'PipeFromSqsToEventBridge', {
+				name: `fronts-updates-pipe-from-sqs-to-eventbridge-${this.stage}`,
+				roleArn: putEventsOnPipeRole.roleArn,
+				source: sqsQueue.queueArn,
+				sourceParameters: {
+					filterCriteria: {
+						filters: [
+							{
+								pattern: JSON.stringify({
+									body: {
+										pressType: ['live'], // only send live events
+									},
+								}),
+							},
+						],
+					},
+				},
 				target: eventBridgeBus.eventBusArn,
+				targetParameters: {
+					inputTemplate: JSON.stringify({
+						path: '<$.body.path>',
+					}),
+				},
 			});
 		}
 	}
