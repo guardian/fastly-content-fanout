@@ -17,6 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+
       - name: Set up Fastly CLI
         uses: fastly/compute-actions/setup@v5
         with:
@@ -36,7 +41,16 @@ jobs:
         with:
           verbose: true # optionally enables verbose output, defaults to false
 
-      - name: Upload to riff-raff
+      - name: CDK synth
+        working-directory: cdk
+        run: |
+          npm install
+          npm test
+          npm run synth
+        env:
+          FASTLY_FANOUT_SERVICE_ID_CODE: ${{ secrets.FASTLY_FANOUT_SERVICE_ID_CODE }}
+
+      - name: Upload C@E to riff-raff
         uses: guardian/actions-riff-raff@v2
         with:
           app: fastly-content-fanout
@@ -51,3 +65,12 @@ jobs:
           contentDirectories: |
             fastly-content-fanout:
               - pkg/fastly-compute-fanout.tar.gz
+
+      - name: Upload eventbridge to riff-raff
+        uses: guardian/actions-riff-raff@v2
+        with:
+          projectName: eventbridge-to-fanout
+          configPath: cdk/cdk.out/riff-raff.yaml
+          contentDirectories: |
+            cdk.out:
+              - cdk/cdk.out
