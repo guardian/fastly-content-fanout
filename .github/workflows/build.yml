@@ -49,6 +49,7 @@ jobs:
           npm run synth
         env:
           FASTLY_FANOUT_SERVICE_ID_CODE: ${{ secrets.FASTLY_FANOUT_SERVICE_ID_CODE }}
+          FASTLY_FANOUT_SERVICE_ID_PROD: ${{ secrets.FASTLY_FANOUT_SERVICE_ID_PROD }}
 
       - name: Upload C@E to riff-raff
         uses: guardian/actions-riff-raff@v2
