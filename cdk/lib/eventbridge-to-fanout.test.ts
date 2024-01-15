@@ -8,7 +8,15 @@ describe('The EventBridgeToFanout stack', () => {
 		const stack = new EventbridgeToFanout(app, 'EventBridgeToFanout', {
 			stack: 'stack',
 			stage: 'TEST',
-			maybeSnsTopicCfnExportName: 'test-sns-topic-export-name',
+			snsTopicDetail: {
+				cfnExportName: 'test-sns-topic-export-name',
+				pathExtractionPattern: '<$.foo.bar>',
+				maybeFilterObject: {
+					foo: {
+						bar: ['baz'],
+					}
+				}
+			} ,
 		});
 		const template = Template.fromStack(stack);
 		expect(template.toJSON()).toMatchSnapshot();
