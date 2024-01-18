@@ -1,0 +1,351 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
+{
+  "Metadata": {
+    "gu:cdk:constructs": [],
+    "gu:cdk:version": "TEST",
+  },
+  "Resources": {
+    "ApiDestinationRuleA4096DF5": {
+      "Properties": {
+        "EventBusName": {
+          "Ref": "EventBridgeBus558461B0",
+        },
+        "EventPattern": {
+          "region": [
+            {
+              "Ref": "AWS::Region",
+            },
+          ],
+        },
+        "Name": "stack-events-to-fastly-fanout-TEST",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "DestinationApiDestinationA879FAE5",
+                "Arn",
+              ],
+            },
+            "Id": "Target0",
+            "InputTransformer": {
+              "InputPathsMap": {
+                "detail-path": "$.detail.path",
+                "time": "$.time",
+              },
+              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":<time>},"http-stream":{"content":"<time>\\n"}}}]}",
+            },
+            "RoleArn": {
+              "Fn::GetAtt": [
+                "DestinationEventsRole7DA63556",
+                "Arn",
+              ],
+            },
+          },
+        ],
+      },
+      "Type": "AWS::Events::Rule",
+    },
+    "Connection07624BCD": {
+      "Properties": {
+        "AuthParameters": {
+          "ApiKeyAuthParameters": {
+            "ApiKeyName": "Fastly-Key",
+            "ApiKeyValue": "{{resolve:secretsmanager:FastlyFanoutApiKeyTEST:SecretString:::}}",
+          },
+        },
+        "AuthorizationType": "API_KEY",
+        "Description": "Fastly fanout authentication",
+        "Name": "fastly-fanout-connection-TEST",
+      },
+      "Type": "AWS::Events::Connection",
+    },
+    "DestinationApiDestinationA879FAE5": {
+      "Properties": {
+        "ConnectionArn": {
+          "Fn::GetAtt": [
+            "Connection07624BCD",
+            "Arn",
+          ],
+        },
+        "HttpMethod": "POST",
+        "InvocationEndpoint": "https://api.fastly.com/service/undefined/publish/",
+        "Name": "fastly-fanout-api-destination-TEST",
+      },
+      "Type": "AWS::Events::ApiDestination",
+    },
+    "DestinationEventsRole7DA63556": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "events.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DestinationEventsRoleDefaultPolicy798A1E31": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "events:InvokeApiDestination",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DestinationApiDestinationA879FAE5",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DestinationEventsRoleDefaultPolicy798A1E31",
+        "Roles": [
+          {
+            "Ref": "DestinationEventsRole7DA63556",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "EventBridgeBus558461B0": {
+      "Properties": {
+        "Name": "stack-eventbridge-bus-TEST",
+      },
+      "Type": "AWS::Events::EventBus",
+    },
+    "PipeFromSQSToEventBridgeRole73A52B61": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "pipes.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Policies": [
+          {
+            "PolicyDocument": {
+              "Statement": [
+                {
+                  "Action": "events:PutEvents",
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "EventBridgeBus558461B0",
+                      "Arn",
+                    ],
+                  },
+                },
+                {
+                  "Action": [
+                    "sqs:ReceiveMessage",
+                    "sqs:DeleteMessage",
+                    "sqs:GetQueueAttributes",
+                  ],
+                  "Effect": "Allow",
+                  "Resource": {
+                    "Fn::GetAtt": [
+                      "SqsQueue13597403",
+                      "Arn",
+                    ],
+                  },
+                },
+              ],
+              "Version": "2012-10-17",
+            },
+            "PolicyName": "allowPutEventsFromPipe",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "PipeFromSqsToEventBridge": {
+      "Properties": {
+        "Name": "fronts-updates-pipe-from-sqs-to-eventbridge-TEST",
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "PipeFromSQSToEventBridgeRole73A52B61",
+            "Arn",
+          ],
+        },
+        "Source": {
+          "Fn::GetAtt": [
+            "SqsQueue13597403",
+            "Arn",
+          ],
+        },
+        "SourceParameters": {
+          "FilterCriteria": {
+            "Filters": [
+              {
+                "Pattern": "{"foo":{"bar":"baz"}}",
+              },
+            ],
+          },
+        },
+        "Tags": {
+          "Stack": "stack",
+          "Stage": "TEST",
+          "gu:cdk:version": "TEST",
+          "gu:repo": "guardian/fastly-content-fanout",
+        },
+        "Target": {
+          "Fn::GetAtt": [
+            "EventBridgeBus558461B0",
+            "Arn",
+          ],
+        },
+        "TargetParameters": {
+          "InputTemplate": "{"path":"<$.foo.bar>"}",
+        },
+      },
+      "Type": "AWS::Pipes::Pipe",
+    },
+    "SqsQueue13597403": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::SQS::Queue",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "SqsQueueEventBridgeToFanoutSNSTopic33833C2B61372AD7": {
+      "DependsOn": [
+        "SqsQueuePolicy24A842E9",
+      ],
+      "Properties": {
+        "Endpoint": {
+          "Fn::GetAtt": [
+            "SqsQueue13597403",
+            "Arn",
+          ],
+        },
+        "Protocol": "sqs",
+        "RawMessageDelivery": true,
+        "Region": {
+          "Fn::Select": [
+            3,
+            {
+              "Fn::Split": [
+                ":",
+                {
+                  "Fn::ImportValue": "test-sns-topic-export-name",
+                },
+              ],
+            },
+          ],
+        },
+        "TopicArn": {
+          "Fn::ImportValue": "test-sns-topic-export-name",
+        },
+      },
+      "Type": "AWS::SNS::Subscription",
+    },
+    "SqsQueuePolicy24A842E9": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sqs:SendMessage",
+              "Condition": {
+                "ArnEquals": {
+                  "aws:SourceArn": {
+                    "Fn::ImportValue": "test-sns-topic-export-name",
+                  },
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "sns.amazonaws.com",
+              },
+              "Resource": {
+                "Fn::GetAtt": [
+                  "SqsQueue13597403",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Queues": [
+          {
+            "Ref": "SqsQueue13597403",
+          },
+        ],
+      },
+      "Type": "AWS::SQS::QueuePolicy",
+    },
+  },
+}
+`;
