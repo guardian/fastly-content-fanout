@@ -11,7 +11,11 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 
 interface EventbridgeToFanoutStackProps extends GuStackProps {
-	maybeSnsTopicCfnExportName?: string;
+	snsTopicUpdatesConfig: {
+		cfnExportName: string;
+		maybeFilterPattern?: object;
+		inputTemplatePath: string;
+	};
 }
 
 export class EventbridgeToFanout extends GuStack {
@@ -71,77 +75,71 @@ export class EventbridgeToFanout extends GuStack {
 			},
 		});
 
-		if (props.maybeSnsTopicCfnExportName) {
-			const snsTopic = sns.Topic.fromTopicArn(
-				this,
-				'SNSTopic',
-				Fn.importValue(props.maybeSnsTopicCfnExportName),
-			);
+		const snsTopic = sns.Topic.fromTopicArn(
+			this,
+			'SNSTopic',
+			Fn.importValue(props.snsTopicUpdatesConfig.cfnExportName),
+		);
 
-			const sqsQueue = new sqs.Queue(this, 'SqsQueue', {
-				// TODO adjust defaults??
-			});
+		const sqsQueue = new sqs.Queue(this, 'SqsQueue');
 
-			snsTopic.addSubscription(
-				new SqsSubscription(sqsQueue, {
-					rawMessageDelivery: true, // prevents message being wrapped in SNS envelope
-				}),
-			);
+		snsTopic.addSubscription(
+			new SqsSubscription(sqsQueue, {
+				rawMessageDelivery: true, // prevents message being wrapped in SNS envelope
+			}),
+		);
 
-			const putEventsOnPipeRole = new iam.Role(
-				this,
-				'PipeFromKinesisToEventBridgeRole',
-				{
-					inlinePolicies: {
-						allowPutEventsFromPipe: new iam.PolicyDocument({
-							statements: [
-								new iam.PolicyStatement({
-									effect: iam.Effect.ALLOW,
-									actions: ['events:PutEvents'],
-									resources: [eventBridgeBus.eventBusArn],
-								}),
-								new iam.PolicyStatement({
-									effect: iam.Effect.ALLOW,
-									actions: [
-										'sqs:ReceiveMessage',
-										'sqs:DeleteMessage',
-										'sqs:GetQueueAttributes',
-									],
-									resources: [sqsQueue.queueArn],
-								}),
-							],
-						}),
-					},
-					assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
-				},
-			);
-
-			// NOTE: 'body' of the SQS message is implicitly parsed and contains the 'PressJob' JSON from the SNS message
-			// see https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes-input-transformation.html#input-transform-implicit
-			new pipes.CfnPipe(this, 'PipeFromSqsToEventBridge', {
-				name: `fronts-updates-pipe-from-sqs-to-eventbridge-${this.stage}`,
-				roleArn: putEventsOnPipeRole.roleArn,
-				source: sqsQueue.queueArn,
-				sourceParameters: {
-					filterCriteria: {
-						filters: [
-							{
-								pattern: JSON.stringify({
-									body: {
-										pressType: ['live'], // only send live events
-									},
-								}),
-							},
+		const putEventsOnPipeRole = new iam.Role(
+			this,
+			'PipeFromSQSToEventBridgeRole',
+			{
+				inlinePolicies: {
+					allowPutEventsFromPipe: new iam.PolicyDocument({
+						statements: [
+							new iam.PolicyStatement({
+								effect: iam.Effect.ALLOW,
+								actions: ['events:PutEvents'],
+								resources: [eventBridgeBus.eventBusArn],
+							}),
+							new iam.PolicyStatement({
+								effect: iam.Effect.ALLOW,
+								actions: [
+									'sqs:ReceiveMessage',
+									'sqs:DeleteMessage',
+									'sqs:GetQueueAttributes',
+								],
+								resources: [sqsQueue.queueArn],
+							}),
 						],
-					},
-				},
-				target: eventBridgeBus.eventBusArn,
-				targetParameters: {
-					inputTemplate: JSON.stringify({
-						path: '<$.body.path>',
 					}),
 				},
-			});
-		}
+				assumedBy: new iam.ServicePrincipal('pipes.amazonaws.com'),
+			},
+		);
+
+		// NOTE: 'body' of the SQS message is implicitly parsed and contains the 'PressJob' JSON from the SNS message
+		// see https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes-input-transformation.html#input-transform-implicit
+		new pipes.CfnPipe(this, 'PipeFromSqsToEventBridge', {
+			name: `fronts-updates-pipe-from-sqs-to-eventbridge-${this.stage}`,
+			roleArn: putEventsOnPipeRole.roleArn,
+			source: sqsQueue.queueArn,
+			sourceParameters: props.snsTopicUpdatesConfig.maybeFilterPattern && {
+				filterCriteria: {
+					filters: [
+						{
+							pattern: JSON.stringify(
+								props.snsTopicUpdatesConfig.maybeFilterPattern,
+							),
+						},
+					],
+				},
+			},
+			target: eventBridgeBus.eventBusArn,
+			targetParameters: {
+				inputTemplate: JSON.stringify({
+					path: props.snsTopicUpdatesConfig.inputTemplatePath,
+				}),
+			},
+		});
 	}
 }

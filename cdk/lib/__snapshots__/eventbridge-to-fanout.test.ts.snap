@@ -143,7 +143,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
       },
       "Type": "AWS::Events::EventBus",
     },
-    "PipeFromKinesisToEventBridgeRoleE54C2CCF": {
+    "PipeFromSQSToEventBridgeRole73A52B61": {
       "Properties": {
         "AssumeRolePolicyDocument": {
           "Statement": [
@@ -217,7 +217,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
         "Name": "fronts-updates-pipe-from-sqs-to-eventbridge-TEST",
         "RoleArn": {
           "Fn::GetAtt": [
-            "PipeFromKinesisToEventBridgeRoleE54C2CCF",
+            "PipeFromSQSToEventBridgeRole73A52B61",
             "Arn",
           ],
         },
@@ -231,7 +231,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
           "FilterCriteria": {
             "Filters": [
               {
-                "Pattern": "{"body":{"pressType":["live"]}}",
+                "Pattern": "{"foo":{"bar":"baz"}}",
               },
             ],
           },
@@ -249,7 +249,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
           ],
         },
         "TargetParameters": {
-          "InputTemplate": "{"path":"<$.body.path>"}",
+          "InputTemplate": "{"path":"<$.foo.bar>"}",
         },
       },
       "Type": "AWS::Pipes::Pipe",

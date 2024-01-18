@@ -8,29 +8,35 @@ const app = new GuRoot();
 
 const env = { region: 'eu-west-1' };
 
-// Fronts - this listens to SNS topic via SQS and EventBridge Pipe (before it gets to the event bus)
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-CODE', {
-	stack: FRONTS_STACK,
-	stage: 'CODE',
-	env,
-	maybeSnsTopicCfnExportName: 'facia-CODE-FrontsUpdateSNSTopicARN',
-});
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-fronts-PROD', {
-	stack: FRONTS_STACK,
-	stage: 'PROD',
-	env,
-	maybeSnsTopicCfnExportName: 'facia-PROD-FrontsUpdateSNSTopicARN',
-});
+['CODE', 'PROD'].map((stage) => {
+	// Fronts - this gets updates via the fronts update SNS topic
+	new EventbridgeToFanout(
+		app,
+		`EventBridgeToFanout-eu-west-1-fronts-${stage}`,
+		{
+			stack: FRONTS_STACK,
+			stage,
+			env,
+			snsTopicUpdatesConfig: {
+				cfnExportName: `facia-${stage}-FrontsUpdateSNSTopicARN`,
+				maybeFilterPattern: {
+					body: {
+						pressType: ['live'], // only send live events
+					},
+				},
+				inputTemplatePath: '<$.body.path>',
+			},
+		},
+	);
 
-// CAPI - crier writes straight to the event bus
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-CODE', {
-	stack: CAPI_STACK,
-	stage: 'CODE',
-	env,
-});
-
-new EventbridgeToFanout(app, 'EventBridgeToFanout-eu-west-1-capi-PROD', {
-	stack: CAPI_STACK,
-	stage: 'PROD',
-	env,
+	// CAPI - this gets updates via the decached SNS topic
+	new EventbridgeToFanout(app, `EventBridgeToFanout-eu-west-1-capi-${stage}`, {
+		stack: CAPI_STACK,
+		stage,
+		env,
+		snsTopicUpdatesConfig: {
+			cfnExportName: 'fastly-cache-purger-PROD-DecachedContentSNSTopicARN', // there is only a PROD cache purger so using it for both CODE and PROD eventbridge
+			inputTemplatePath: '<$.messageAttributes.path>',
+		},
+	});
 });
