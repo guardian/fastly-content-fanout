@@ -53,7 +53,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
         "AuthParameters": {
           "ApiKeyAuthParameters": {
             "ApiKeyName": "Fastly-Key",
-            "ApiKeyValue": "{{resolve:secretsmanager:FastlyFanoutApiKey:SecretString:::}}",
+            "ApiKeyValue": "{{resolve:secretsmanager:FastlyFanoutApiKeyTEST:SecretString:::}}",
           },
         },
         "AuthorizationType": "API_KEY",

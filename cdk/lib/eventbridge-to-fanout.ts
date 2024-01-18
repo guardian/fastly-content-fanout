@@ -30,7 +30,7 @@ export class EventbridgeToFanout extends GuStack {
 		const connection = new events.Connection(this, 'Connection', {
 			authorization: events.Authorization.apiKey(
 				'Fastly-Key',
-				SecretValue.secretsManager('FastlyFanoutApiKey'),
+				SecretValue.secretsManager(`FastlyFanoutApiKey${this.stage}`),
 			),
 			description: 'Fastly fanout authentication',
 			connectionName: `fastly-fanout-connection-${this.stage}`,
