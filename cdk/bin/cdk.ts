@@ -36,7 +36,7 @@ const env = { region: 'eu-west-1' };
 		env,
 		snsTopicUpdatesConfig: {
 			cfnExportName: 'fastly-cache-purger-PROD-DecachedContentSNSTopicARN', // there is only a PROD cache purger so using it for both CODE and PROD eventbridge
-			inputTemplatePath: '<$.messageAttributes.path>',
+			inputTemplatePath: '<$.messageAttributes.path.stringValue>',
 		},
 	});
 });
