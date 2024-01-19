@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`The riff-raff output YAML matches the snapshot 1`] = `
+"allowedStages:
+  - CODE
+  - PROD
+deployments:
+  cfn-eu-west-1-cms-fronts-eventbridge-to-fanout:
+    type: cloud-formation
+    regions:
+      - eu-west-1
+    stacks:
+      - cms-fronts
+    app: eventbridge-to-fanout
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: EventBridgeToFanout-eu-west-1-fronts-CODE.template.json
+        PROD: EventBridgeToFanout-eu-west-1-fronts-PROD.template.json
+  cfn-eu-west-1-content-api-fastly-cache-purger-eventbridge-to-fanout:
+    type: cloud-formation
+    regions:
+      - eu-west-1
+    stacks:
+      - content-api-fastly-cache-purger
+    app: eventbridge-to-fanout
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: EventBridgeToFanout-eu-west-1-capi-CODE.template.json
+        PROD: EventBridgeToFanout-eu-west-1-capi-PROD.template.json
+  fastly-C@E-package:
+    type: fastly-compute
+    app: fastly-content-fanout
+    contentDirectory: fastly-C@E-package
+    parameters: {}
+    regions:
+      - eu-west-1
+    stacks:
+      - mobile
+"
+`;

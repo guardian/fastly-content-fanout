@@ -42,7 +42,7 @@ const env = { region: 'eu-west-1' };
 	});
 });
 
-const riffRaff = new RiffRaffYamlFile(app);
+export const riffRaff = new RiffRaffYamlFile(app);
 const { riffRaffYaml: { deployments } } = riffRaff;
 
 deployments.set("fastly-C@E-package", {
