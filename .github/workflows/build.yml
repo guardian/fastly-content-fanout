@@ -51,27 +51,13 @@ jobs:
           FASTLY_FANOUT_SERVICE_ID_CODE: ${{ secrets.FASTLY_FANOUT_SERVICE_ID_CODE }}
           FASTLY_FANOUT_SERVICE_ID_PROD: ${{ secrets.FASTLY_FANOUT_SERVICE_ID_PROD }}
 
-      - name: Upload C@E to riff-raff
+      - name: Upload to riff-raff
         uses: guardian/actions-riff-raff@v2
         with:
-          app: fastly-content-fanout
-          config: |
-            stacks:
-              - mobile
-            regions:
-              - eu-west-1
-            deployments:
-              fastly-content-fanout:
-                  type: fastly-compute
-          contentDirectories: |
-            fastly-content-fanout:
-              - pkg/fastly-compute-fanout.tar.gz
-
-      - name: Upload eventbridge to riff-raff
-        uses: guardian/actions-riff-raff@v2
-        with:
-          projectName: eventbridge-to-fanout
+          projectName: fastly-content-fanout
           configPath: cdk/cdk.out/riff-raff.yaml
           contentDirectories: |
             cdk.out:
               - cdk/cdk.out
+            fastly-C@E-package:
+              - pkg/fastly-content-fanout.tar.gz
