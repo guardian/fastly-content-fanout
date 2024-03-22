@@ -64,7 +64,9 @@ export class EventbridgeToFanout extends GuStack {
 									},
 									// sse connections
 									'http-stream': {
-										content: `${events.EventField.fromPath('$.time')}\n`,
+										content: `${JSON.stringify({
+											timestamp: events.EventField.fromPath('$.time')
+										})}\n`,
 									},
 								},
 							},

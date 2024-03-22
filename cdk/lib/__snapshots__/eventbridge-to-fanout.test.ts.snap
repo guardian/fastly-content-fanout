@@ -35,7 +35,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
                 "detail-path": "$.detail.path",
                 "time": "$.time",
               },
-              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":"{\\"timestamp\\":\\"<time>\\"}"},"http-stream":{"content":"<time>\\n"}}}]}",
+              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":"{\\"timestamp\\":\\"<time>\\"}"},"http-stream":{"content":"{\\"timestamp\\":\\"<time>\\"}\\n"}}}]}",
             },
             "RoleArn": {
               "Fn::GetAtt": [
