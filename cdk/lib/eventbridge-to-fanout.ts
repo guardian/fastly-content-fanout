@@ -45,6 +45,9 @@ export class EventbridgeToFanout extends GuStack {
 			apiDestinationName: `fastly-fanout-api-destination-${this.stage}`,
 		});
 
+		const fanoutPayload: string = JSON.stringify({
+			timestamp: events.EventField.fromPath('$.time')
+		})
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
 			ruleName: `${this.stack}-events-to-fastly-fanout-${this.stage}`,
@@ -58,15 +61,11 @@ export class EventbridgeToFanout extends GuStack {
 								formats: {
 									// websocket connections
 									'ws-message': {
-										content: JSON.stringify({
-											timestamp: events.EventField.fromPath('$.time')
-										})
+										content: fanoutPayload,
 									},
 									// sse connections
 									'http-stream': {
-										content: `${JSON.stringify({
-											timestamp: events.EventField.fromPath('$.time')
-										})}\n`,
+										content: `${fanoutPayload}\n`,
 									},
 								},
 							},
