@@ -5,6 +5,10 @@ import { Buffer } from 'buffer';
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
 
+const commonHeaders = {
+  "Access-Control-Allow-Origin": "https://www.theguardian.com",
+};
+
 // Use this fetch event listener to define your main request handling logic.
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
 
@@ -47,6 +51,7 @@ async function handleRequest({ request }: FetchEvent) {
       return new Response(new Uint8Array(out), {
         status: 200,
         headers: {
+          ...commonHeaders,
           "Content-Type": "application/websocket-events",
           "Sec-WebSocket-Extensions": 'grip; message-prefix=""',
         },
@@ -55,6 +60,7 @@ async function handleRequest({ request }: FetchEvent) {
       return new Response(null, {
         status: 200,
         headers: {
+          ...commonHeaders,
           "Content-Type": "application/websocket-events",
         },
       });
@@ -65,6 +71,7 @@ async function handleRequest({ request }: FetchEvent) {
   return new Response("welcome\n", { // TODO: can we send null for body?
     status: 200,
     headers: {
+      ...commonHeaders,
       "Content-Type": "text/event-stream",
       "Grip-Hold": "stream",
       "Grip-Channel": channel,
