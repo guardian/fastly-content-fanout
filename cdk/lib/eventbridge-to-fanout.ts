@@ -65,7 +65,7 @@ export class EventbridgeToFanout extends GuStack {
 									},
 									// sse connections
 									'http-stream': {
-										content: `${fanoutPayload}\n`,
+										content: `data: ${fanoutPayload}\n\n`,
 									},
 								},
 							},
