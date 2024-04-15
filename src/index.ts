@@ -68,7 +68,7 @@ async function handleRequest({ request }: FetchEvent) {
   }
 
   // assume this is server sent event
-  return new Response("welcome\n", { // TODO: can we send null for body?
+  return new Response(null, {
     status: 200,
     headers: {
       ...commonHeaders,
