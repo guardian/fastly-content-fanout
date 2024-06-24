@@ -46,7 +46,8 @@ export class EventbridgeToFanout extends GuStack {
 		});
 
 		const fanoutPayload: string = JSON.stringify({
-			timestamp: events.EventField.fromPath('$.time')
+			timestamp: events.EventField.fromPath('$.time'),
+			collectionIds: events.EventField.fromPath('$.detail.collectionIds'), // only present on front update
 		})
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
