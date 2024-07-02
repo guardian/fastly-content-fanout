@@ -10,7 +10,7 @@ describe('The EventBridgeToFanout stack', () => {
 			stage: 'TEST',
 			snsTopicUpdatesConfig: {
 				cfnExportName: 'test-sns-topic-export-name',
-				inputTemplate: {path: '<$.foo.bar>'},
+				inputTemplate: `{"path": <$.foo.bar>}`,
 				maybeFilterPattern: {
 					foo: {
 						bar: 'baz',

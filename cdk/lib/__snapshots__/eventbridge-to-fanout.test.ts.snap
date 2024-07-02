@@ -250,7 +250,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
           ],
         },
         "TargetParameters": {
-          "InputTemplate": "{"path":"<$.foo.bar>"}",
+          "InputTemplate": "{"path": <$.foo.bar>}",
         },
       },
       "Type": "AWS::Pipes::Pipe",

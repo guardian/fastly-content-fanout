@@ -14,7 +14,8 @@ interface EventbridgeToFanoutStackProps extends GuStackProps {
 	snsTopicUpdatesConfig: {
 		cfnExportName: string;
 		maybeFilterPattern?: object;
-		inputTemplate: {path: string} & Record<string, unknown>;
+		/* JSON-like template describing mapping from SNS events to event bridge event body.  Must include 'path' property */
+		inputTemplate: string;
 	};
 }
 
@@ -140,7 +141,7 @@ export class EventbridgeToFanout extends GuStack {
 			},
 			target: eventBridgeBus.eventBusArn,
 			targetParameters: {
-				inputTemplate: JSON.stringify(props.snsTopicUpdatesConfig.inputTemplate),
+				inputTemplate: props.snsTopicUpdatesConfig.inputTemplate.trim(),
 			},
 		});
 	}
