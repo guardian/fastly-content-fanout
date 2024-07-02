@@ -25,7 +25,10 @@ const env = { region: 'eu-west-1' };
 						pressType: ['live'], // only send live events
 					},
 				},
-				inputTemplatePath: '<$.body.path>',
+				inputTemplate: `{
+					"path": <$.body.path>,
+					"collectionIds": <$.body.collectionIds>
+				}`,
 			},
 		},
 	);
@@ -37,7 +40,7 @@ const env = { region: 'eu-west-1' };
 		env,
 		snsTopicUpdatesConfig: {
 			cfnExportName: 'fastly-cache-purger-PROD-DecachedContentSNSTopicARN', // there is only a PROD cache purger so using it for both CODE and PROD eventbridge
-			inputTemplatePath: '<$.messageAttributes.path.stringValue>',
+			inputTemplate: `{"path": <$.messageAttributes.path.stringValue>}`,
 		},
 	});
 });

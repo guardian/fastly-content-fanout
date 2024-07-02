@@ -14,7 +14,8 @@ interface EventbridgeToFanoutStackProps extends GuStackProps {
 	snsTopicUpdatesConfig: {
 		cfnExportName: string;
 		maybeFilterPattern?: object;
-		inputTemplatePath: string;
+		/* JSON-like template describing mapping from SNS events to event bridge event body.  Must include 'path' property */
+		inputTemplate: string;
 	};
 }
 
@@ -46,7 +47,8 @@ export class EventbridgeToFanout extends GuStack {
 		});
 
 		const fanoutPayload: string = JSON.stringify({
-			timestamp: events.EventField.fromPath('$.time')
+			timestamp: events.EventField.fromPath('$.time'),
+			collectionIds: events.EventField.fromPath('$.detail.collectionIds'), // only present on front update
 		})
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
@@ -139,9 +141,7 @@ export class EventbridgeToFanout extends GuStack {
 			},
 			target: eventBridgeBus.eventBusArn,
 			targetParameters: {
-				inputTemplate: JSON.stringify({
-					path: props.snsTopicUpdatesConfig.inputTemplatePath,
-				}),
+				inputTemplate: props.snsTopicUpdatesConfig.inputTemplate.trim(),
 			},
 		});
 	}

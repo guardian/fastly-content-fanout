@@ -32,10 +32,11 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
             "Id": "Target0",
             "InputTransformer": {
               "InputPathsMap": {
+                "detail-collectionIds": "$.detail.collectionIds",
                 "detail-path": "$.detail.path",
                 "time": "$.time",
               },
-              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":"{\\"timestamp\\":\\"<time>\\"}"},"http-stream":{"content":"data: {\\"timestamp\\":\\"<time>\\"}\\n\\n"}}}]}",
+              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":"{\\"timestamp\\":\\"<time>\\",\\"collectionIds\\":\\"<detail-collectionIds>\\"}"},"http-stream":{"content":"data: {\\"timestamp\\":\\"<time>\\",\\"collectionIds\\":\\"<detail-collectionIds>\\"}\\n\\n"}}}]}",
             },
             "RoleArn": {
               "Fn::GetAtt": [
@@ -249,7 +250,7 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
           ],
         },
         "TargetParameters": {
-          "InputTemplate": "{"path":"<$.foo.bar>"}",
+          "InputTemplate": "{"path": <$.foo.bar>}",
         },
       },
       "Type": "AWS::Pipes::Pipe",
