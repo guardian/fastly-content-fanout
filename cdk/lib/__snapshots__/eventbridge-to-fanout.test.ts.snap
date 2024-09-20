@@ -32,10 +32,10 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
             "Id": "Target0",
             "InputTransformer": {
               "InputPathsMap": {
-                "detail-fanoutPayload": "$.detail.fanoutPayload",
                 "detail-path": "$.detail.path",
+                "time": "$.time",
               },
-              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":<detail-fanoutPayload>},"http-stream":{"content":"data: <detail-fanoutPayload>\\n\\n"}}}]}",
+              "InputTemplate": "{"items":[{"channel":<detail-path>,"formats":{"ws-message":{"content":"{\\"timestamp\\":\\"<time>\\"}"},"http-stream":{"content":"data: {\\"timestamp\\":\\"<time>\\"}\\n\\n"}}}]}",
             },
             "RoleArn": {
               "Fn::GetAtt": [

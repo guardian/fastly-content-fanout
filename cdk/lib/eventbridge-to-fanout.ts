@@ -46,7 +46,11 @@ export class EventbridgeToFanout extends GuStack {
 			apiDestinationName: `fastly-fanout-api-destination-${this.stage}`,
 		});
 
-		const fanoutPayload: string = events.EventField.fromPath('$.detail.fanoutPayload')
+		const isFanoutPayloadInEvent =
+			props.snsTopicUpdatesConfig.inputTemplate.includes(`"fanoutPayload"`);
+		const fanoutPayload: string = isFanoutPayloadInEvent
+			? events.EventField.fromPath('$.detail.fanoutPayload')
+			: JSON.stringify({ timestamp: events.EventField.fromPath('$.time') });
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
 			ruleName: `${this.stack}-events-to-fastly-fanout-${this.stage}`,
