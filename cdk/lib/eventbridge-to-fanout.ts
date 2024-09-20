@@ -46,10 +46,7 @@ export class EventbridgeToFanout extends GuStack {
 			apiDestinationName: `fastly-fanout-api-destination-${this.stage}`,
 		});
 
-		const fanoutPayload: string = JSON.stringify({
-			timestamp: events.EventField.fromPath('$.time'),
-			collectionIds: events.EventField.fromPath('$.detail.collectionIds'), // only present on front update
-		})
+		const fanoutPayload: string = events.EventField.fromPath('$.detail.fanoutPayload')
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
 			ruleName: `${this.stack}-events-to-fastly-fanout-${this.stage}`,
