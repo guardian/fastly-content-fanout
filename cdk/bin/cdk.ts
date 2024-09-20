@@ -27,7 +27,7 @@ const env = { region: 'eu-west-1' };
 				},
 				inputTemplate: `{
 					"path": <$.body.path>,
-					"collectionIds": <$.body.collectionIds>
+					"fanoutPayload": <$.body.fanoutPayload>
 				}`,
 			},
 		},
