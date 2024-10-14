@@ -5,9 +5,9 @@ import { Buffer } from 'buffer';
 import { env } from "fastly:env";
 import { createFanoutHandoff } from "fastly:fanout";
 
-const commonHeaders = {
-  "Access-Control-Allow-Origin": "https://www.theguardian.com",
-};
+const buildCommonHeaders = (requestOrigin: string | null) => ({
+  "Access-Control-Allow-Origin": requestOrigin === "https://m.code.dev-theguardian.com" ? requestOrigin : "https://www.theguardian.com",
+});
 
 // Use this fetch event listener to define your main request handling logic.
 addEventListener("fetch", (event) => event.respondWith(handleRequest(event)));
@@ -27,9 +27,12 @@ async function handleRequest({ request }: FetchEvent) {
     return new Response("No path provided.", { status: 400 });
 
   if (!request.headers.has("Grip-Sig")) {
-    console.log("about to create fanout handoff");
+    console.log("about to create fanout handoff", " -- Origin:", request.headers.get("Origin"));
     return createFanoutHandoff(request, "self");
   }
+
+  console.log(" -- Origin:", request.headers.get("Origin"))
+  const commonHeaders = buildCommonHeaders(request.headers.get("Origin"));
 
   if (request.headers.get("Accept") === "application/websocket-events") {
     const body = await request.text();
