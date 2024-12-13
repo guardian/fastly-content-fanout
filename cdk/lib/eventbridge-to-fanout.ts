@@ -127,6 +127,10 @@ export class EventbridgeToFanout extends GuStack {
 			roleArn: putEventsOnPipeRole.roleArn,
 			source: sqsQueue.queueArn,
 			sourceParameters: props.snsTopicUpdatesConfig.maybeFilterPattern && {
+				sqsQueueParameters: {
+					// we want to process events immediately from SQS
+					batchSize: 1
+				},
 				filterCriteria: {
 					filters: [
 						{

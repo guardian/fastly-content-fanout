@@ -235,6 +235,9 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
               },
             ],
           },
+          "SqsQueueParameters": {
+            "BatchSize": 1,
+          },
         },
         "Tags": {
           "Stack": "stack",
