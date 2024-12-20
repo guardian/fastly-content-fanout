@@ -10,12 +10,13 @@ describe('The EventBridgeToFanout stack', () => {
 			stage: 'TEST',
 			snsTopicUpdatesConfig: {
 				cfnExportName: 'test-sns-topic-export-name',
-				inputTemplatePath: '<$.foo.bar>',
 				maybeFilterPattern: {
 					foo: {
 						bar: 'baz',
 					},
 				},
+				shouldSplitEventArray: true,
+				inputTemplatePath: '<$.foo.bar>',
 			},
 		});
 		const template = Template.fromStack(stack);

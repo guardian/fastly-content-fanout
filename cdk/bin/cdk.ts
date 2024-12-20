@@ -1,7 +1,7 @@
 import 'source-map-support/register';
-import { EventbridgeToFanout } from '../lib/eventbridge-to-fanout';
 import { RiffRaffYamlFile } from "@guardian/cdk/lib/riff-raff-yaml-file";
 import { App } from "aws-cdk-lib";
+import { EventbridgeToFanout } from '../lib/eventbridge-to-fanout';
 
 const FRONTS_STACK = 'cms-fronts';
 const CAPI_STACK = 'content-api-fastly-cache-purger';
@@ -49,6 +49,7 @@ const env = { region: 'eu-west-1' };
 		env,
 		snsTopicUpdatesConfig: {
 			cfnExportName: `facia-fastly-cache-purger-${stage}-DecachedContentSNSTopicARN`,
+			shouldSplitEventArray: true,
 			// TODO - check this when we know what the event looks like
 			inputTemplatePath: '<$.body>',
 		},
