@@ -9,13 +9,13 @@
   "author": "oss@fastly.com",
   "license": "MIT",
   "engines": {
-    "node": "^>=24"
+    "node": ">=24"
   },
   "devDependencies": {
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "@fastly/js-compute": "^3.0.0"
+    "@fastly/js-compute": "^3.43.1"
   },
   "scripts": {
     "prebuild": "tsc",
