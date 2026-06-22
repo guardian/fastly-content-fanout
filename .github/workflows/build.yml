@@ -20,10 +20,10 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: Set up Fastly CLI
-        uses: fastly/compute-actions/setup@v5
+        uses: fastly/compute-actions/setup@v13
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -37,7 +37,7 @@ jobs:
         run: npm install
 
       - name: Build Compute@Edge package
-        uses: fastly/compute-actions/build@v5 # equivalent to `fastly compute build`
+        uses: fastly/compute-actions/build@v13 # equivalent to `fastly compute build`
         with:
           verbose: true # optionally enables verbose output, defaults to false
 
