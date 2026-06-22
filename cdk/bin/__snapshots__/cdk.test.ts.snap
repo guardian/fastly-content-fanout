@@ -29,6 +29,18 @@ deployments:
       templateStagePaths:
         CODE: EventBridgeToFanout-eu-west-1-capi-CODE.template.json
         PROD: EventBridgeToFanout-eu-west-1-capi-PROD.template.json
+  cfn-eu-west-1-frontend-eventbridge-to-fanout:
+    type: cloud-formation
+    regions:
+      - eu-west-1
+    stacks:
+      - frontend
+    app: eventbridge-to-fanout
+    contentDirectory: cdk.out
+    parameters:
+      templateStagePaths:
+        CODE: EventBridgeToFanout-eu-west-1-frontend-CODE.template.json
+        PROD: EventBridgeToFanout-eu-west-1-frontend-PROD.template.json
   fastly-C@E-package:
     type: fastly-compute
     app: fastly-content-fanout

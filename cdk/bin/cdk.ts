@@ -1,10 +1,11 @@
 import 'source-map-support/register';
+import { RiffRaffYamlFile } from "@guardian/cdk/lib/riff-raff-yaml-file";
+import { App } from "aws-cdk-lib";
 import { EventbridgeToFanout } from '../lib/eventbridge-to-fanout';
-import {RiffRaffYamlFile} from "@guardian/cdk/lib/riff-raff-yaml-file";
-import {App} from "aws-cdk-lib";
 
 const FRONTS_STACK = 'cms-fronts';
 const CAPI_STACK = 'content-api-fastly-cache-purger';
+const FRONTEND_STACK = `frontend`;
 const app = new App(); // note not `GuRoot` since we're adding additional deployments to the riff-raff yaml further down this file
 
 const env = { region: 'eu-west-1' };
@@ -38,6 +39,19 @@ const env = { region: 'eu-west-1' };
 		snsTopicUpdatesConfig: {
 			cfnExportName: 'fastly-cache-purger-PROD-DecachedContentSNSTopicARN', // there is only a PROD cache purger so using it for both CODE and PROD eventbridge
 			inputTemplatePath: '<$.messageAttributes.path.stringValue>',
+		},
+	});
+
+	// Frontend - this gets updates from facia-cache-purger
+	new EventbridgeToFanout(app, `EventBridgeToFanout-eu-west-1-frontend-${stage}`, {
+		stack: FRONTEND_STACK,
+		stage,
+		env,
+		snsTopicUpdatesConfig: {
+			cfnExportName: `facia-fastly-cache-purger-${stage}-DecachedContentSNSTopicARN`,
+			shouldSplitEventArray: true,
+			// TODO - check this when we know what the event looks like
+			inputTemplatePath: '<$.body>',
 		},
 	});
 });

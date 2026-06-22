@@ -8,6 +8,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as pipes from 'aws-cdk-lib/aws-pipes';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sns from 'aws-cdk-lib/aws-sns';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 
 interface EventbridgeToFanoutStackProps extends GuStackProps {
@@ -15,6 +16,7 @@ interface EventbridgeToFanoutStackProps extends GuStackProps {
 		cfnExportName: string;
 		maybeFilterPattern?: object;
 		inputTemplatePath: string;
+		shouldSplitEventArray?: true;
 	};
 }
 
@@ -78,6 +80,12 @@ export class EventbridgeToFanout extends GuStack {
 			},
 		});
 
+		const maybeEnrichmentLambda = props.snsTopicUpdatesConfig.shouldSplitEventArray && new lambda.Function(this, "EnrichmentLambda", {
+			code: lambda.InlineCode.fromAsset("lambda-to-split-sqs-payload"),
+			handler: "index.handler",
+			runtime: lambda.Runtime.NODEJS_LATEST
+		});
+
 		const snsTopic = sns.Topic.fromTopicArn(
 			this,
 			'SNSTopic',
@@ -127,6 +135,10 @@ export class EventbridgeToFanout extends GuStack {
 			roleArn: putEventsOnPipeRole.roleArn,
 			source: sqsQueue.queueArn,
 			sourceParameters: props.snsTopicUpdatesConfig.maybeFilterPattern && {
+				sqsQueueParameters: {
+					// we want to process events immediately from SQS
+					batchSize: 1
+				},
 				filterCriteria: {
 					filters: [
 						{
@@ -137,6 +149,7 @@ export class EventbridgeToFanout extends GuStack {
 					],
 				},
 			},
+			enrichment: maybeEnrichmentLambda?.functionArn,
 			target: eventBridgeBus.eventBusArn,
 			targetParameters: {
 				inputTemplate: JSON.stringify({

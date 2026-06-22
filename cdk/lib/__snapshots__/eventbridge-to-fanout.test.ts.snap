@@ -6,6 +6,20 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
     "gu:cdk:constructs": [],
     "gu:cdk:version": "TEST",
   },
+  "Parameters": {
+    "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bArtifactHashD3949658": {
+      "Description": "Artifact hash for asset "79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6b"",
+      "Type": "String",
+    },
+    "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bS3Bucket3D68058E": {
+      "Description": "S3 bucket for asset "79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6b"",
+      "Type": "String",
+    },
+    "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bS3VersionKeyCECDE860": {
+      "Description": "S3 key for asset version "79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6b"",
+      "Type": "String",
+    },
+  },
   "Resources": {
     "ApiDestinationRuleA4096DF5": {
       "Properties": {
@@ -137,6 +151,127 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
       },
       "Type": "AWS::IAM::Policy",
     },
+    "EnrichmentLambda3D6CE785": {
+      "DependsOn": [
+        "EnrichmentLambdaServiceRole72330D97",
+      ],
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bS3Bucket3D68058E",
+          },
+          "S3Key": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Fn::Select": [
+                    0,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bS3VersionKeyCECDE860",
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  "Fn::Select": [
+                    1,
+                    {
+                      "Fn::Split": [
+                        "||",
+                        {
+                          "Ref": "AssetParameters79c52461c2eabbde0331eca31918c22c9fe2f1e087328ed1d6423155366f5e6bS3VersionKeyCECDE860",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "EnrichmentLambdaServiceRole72330D97",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs18.x",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "EnrichmentLambdaServiceRole72330D97": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
     "EventBridgeBus558461B0": {
       "Properties": {
         "Name": "stack-eventbridge-bus-TEST",
@@ -214,6 +349,12 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
     },
     "PipeFromSqsToEventBridge": {
       "Properties": {
+        "Enrichment": {
+          "Fn::GetAtt": [
+            "EnrichmentLambda3D6CE785",
+            "Arn",
+          ],
+        },
         "Name": "fronts-updates-pipe-from-sqs-to-eventbridge-TEST",
         "RoleArn": {
           "Fn::GetAtt": [
@@ -234,6 +375,9 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
                 "Pattern": "{"foo":{"bar":"baz"}}",
               },
             ],
+          },
+          "SqsQueueParameters": {
+            "BatchSize": 1,
           },
         },
         "Tags": {
