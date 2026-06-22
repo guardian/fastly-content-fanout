@@ -1,10 +1,10 @@
-import {riffRaff} from "./cdk";
+import {OUTDIR_ENV} from "aws-cdk-lib/cx-api";
 
 describe('The riff-raff output YAML', () => {
   it('matches the snapshot', () => {
-    // @ts-ignore
-    const outdir = riffRaff.outdir; // this changes for every test execution and best not to change cdk.ts too much
-    const riffRaffYaml = riffRaff.toYAML().replaceAll(outdir, 'cdk.out');
-    expect(riffRaffYaml).toMatchSnapshot();
+    // outdir changes for every test execution and didn't want to change cdk.ts too much - so overriding in the test
+    process.env[OUTDIR_ENV] = 'cdk.out';
+     // must set env var before importing riffRaff
+    expect(require('./cdk').riffRaff.toYAML()).toMatchSnapshot();
   });
 });
