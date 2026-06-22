@@ -22,5 +22,5 @@
     "build": "js-compute-runtime build/index.js bin/main.wasm",
     "deploy": "fastly compute publish"
   },
-  "packageManager": "npm@11.9.0"
+  "packageManager": "npm@11.13.0"
 }
