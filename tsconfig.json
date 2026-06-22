@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "strict": true,
-    "module": "ES2022",
-    "target": "ES2022",
-    "moduleResolution": "node",
     "esModuleInterop": true,
     "lib": [ "es2022" ],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "outDir": "build",
     "rootDir": "src",
-    "outDir": "build"
+    "strict": true,
+    "target": "ES2022"
   },
   "include": [
     "./src/**/*.js",
