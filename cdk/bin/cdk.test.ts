@@ -1,10 +1,11 @@
-import {riffRaff} from "./cdk";
+import { RIFF_RAFF_PROJECT_NAME, riffRaff } from './cdk';
 
 describe('The riff-raff output YAML', () => {
-  it('matches the snapshot', () => {
-    // @ts-ignore
-    const outdir = riffRaff.outdir; // this changes for every test execution and best not to change cdk.ts too much
-    const riffRaffYaml = riffRaff.toYAML().replaceAll(outdir, 'cdk.out');
-    expect(riffRaffYaml).toMatchSnapshot();
-  });
+	it('matches the snapshot', () => {
+		const riffRaffYaml = riffRaff
+			.toYAML(RIFF_RAFF_PROJECT_NAME)
+			.replaceAll(/contentDirectory: .*/g, 'contentDirectory: cdk.out');
+
+		expect(riffRaffYaml).toMatchSnapshot();
+	});
 });

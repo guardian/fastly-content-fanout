@@ -1,6 +1,6 @@
 import { App } from 'aws-cdk-lib';
 import { Template } from 'aws-cdk-lib/assertions';
-import { EventbridgeToFanout } from './eventbridge-to-fanout';
+import { EventbridgeToFanout } from '../../cdk/lib/eventbridge-to-fanout';
 
 describe('The EventBridgeToFanout stack', () => {
 	it('matches the snapshot', () => {
