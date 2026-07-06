@@ -6,9 +6,9 @@ import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as pipes from 'aws-cdk-lib/aws-pipes';
-import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as sns from 'aws-cdk-lib/aws-sns';
 import { SqsSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 interface EventbridgeToFanoutStackProps extends GuStackProps {
 	snsTopicUpdatesConfig: {
@@ -46,8 +46,8 @@ export class EventbridgeToFanout extends GuStack {
 		});
 
 		const fanoutPayload: string = JSON.stringify({
-			timestamp: events.EventField.fromPath('$.time')
-		})
+			timestamp: events.EventField.fromPath('$.time'),
+		});
 		new events.Rule(this, 'ApiDestinationRule', {
 			eventBus: eventBridgeBus,
 			ruleName: `${this.stack}-events-to-fastly-fanout-${this.stage}`,
