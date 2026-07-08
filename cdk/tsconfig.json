@@ -1,12 +1,16 @@
 {
-  "extends": "@guardian/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "module": "CommonJS"
-  },
-  "include": ["lib/**/*", "bin/**/*"],
-  "exclude": [
-    "node_modules",
-    "cdk.out",
-    "lib/**/__snapshots__/**"
-  ]
+	"extends": "@guardian/tsconfig/tsconfig.json",
+	"compilerOptions": {
+		"target": "ES2021",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true,
+		"inlineSourceMap": false,
+		"inlineSources": true,
+		"outDir": "lib"
+	},
+	"include": ["lib/**/*", "bin/**/*"],
+	"exclude": ["node_modules", "cdk.out", "lib/**/__snapshots__/**"]
 }
