@@ -55,7 +55,7 @@ jobs:
         uses: guardian/actions-riff-raff@v2
         with:
           projectName: fastly-content-fanout
-          configPath: cdk/cdk.out/riff-raff.yaml
+          configPath: cdk/cdk.out/fastly-content-fanout/riff-raff.yaml
           contentDirectories: |
             cdk.out:
               - cdk/cdk.out
