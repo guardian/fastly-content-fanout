@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
 {
@@ -21,6 +21,24 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
         },
         "Name": "stack-events-to-fastly-fanout-TEST",
         "State": "ENABLED",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
         "Targets": [
           {
             "Arn": {
@@ -140,6 +158,24 @@ exports[`The EventBridgeToFanout stack matches the snapshot 1`] = `
     "EventBridgeBus558461B0": {
       "Properties": {
         "Name": "stack-eventbridge-bus-TEST",
+        "Tags": [
+          {
+            "Key": "gu:cdk:version",
+            "Value": "TEST",
+          },
+          {
+            "Key": "gu:repo",
+            "Value": "guardian/fastly-content-fanout",
+          },
+          {
+            "Key": "Stack",
+            "Value": "stack",
+          },
+          {
+            "Key": "Stage",
+            "Value": "TEST",
+          },
+        ],
       },
       "Type": "AWS::Events::EventBus",
     },

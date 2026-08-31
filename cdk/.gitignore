@@ -10,4 +10,5 @@ dist
 .cdk.staging
 cdk.out
 
+# fastly compute build output
 !bin
